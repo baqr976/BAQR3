@@ -191,5 +191,8 @@ speedBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- أول تبويب يفتح
-pages:GetChildren()[1].Visible = true
+-- خلي Player هو اللي يظهر أول شيء
+for _,pg in pairs(pages:GetChildren()) do
+    pg.Visible = false
+end
+playerPage.Visible = true

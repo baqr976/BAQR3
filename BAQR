@@ -1,0 +1,195 @@
+--// Baqr GUI
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "BaqrUI"
+
+-- Main Frame
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 350, 0, 250)
+frame.Position = UDim2.new(0.3, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Active = true
+frame.Draggable = true
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "باكر"
+title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+
+-- Minimize Button
+local minBtn = Instance.new("TextButton", title)
+minBtn.Size = UDim2.new(0, 30, 1, 0)
+minBtn.Position = UDim2.new(1, -30, 0, 0)
+minBtn.Text = "-"
+minBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minBtn.TextColor3 = Color3.fromRGB(255,255,255)
+
+local minimized = false
+minBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    for _,child in pairs(frame:GetChildren()) do
+        if child ~= title then
+            child.Visible = not minimized
+        end
+    end
+    frame.Size = minimized and UDim2.new(0,120,0,40) or UDim2.new(0,350,0,250)
+end)
+
+-- Tabs system
+local tabHolder = Instance.new("Frame", frame)
+tabHolder.Size = UDim2.new(0, 100, 1, -30)
+tabHolder.Position = UDim2.new(0,0,0,30)
+tabHolder.BackgroundColor3 = Color3.fromRGB(40,40,40)
+
+local pages = Instance.new("Frame", frame)
+pages.Size = UDim2.new(1,-100,1,-30)
+pages.Position = UDim2.new(0,100,0,30)
+pages.BackgroundColor3 = Color3.fromRGB(25,25,25)
+
+local function createTab(name)
+    local btn = Instance.new("TextButton", tabHolder)
+    btn.Size = UDim2.new(1,0,0,30)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 16
+    
+    local page = Instance.new("Frame", pages)
+    page.Size = UDim2.new(1,0,1,0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    
+    btn.MouseButton1Click:Connect(function()
+        for _,pg in pairs(pages:GetChildren()) do
+            pg.Visible = false
+        end
+        page.Visible = true
+    end)
+    
+    return page
+end
+
+-- Player Tab
+local playerPage = createTab("Player")
+local nameLabel = Instance.new("TextLabel", playerPage)
+nameLabel.Size = UDim2.new(1,0,0,40)
+nameLabel.Text = "Name: "..LocalPlayer.Name
+nameLabel.TextColor3 = Color3.fromRGB(255,255,255)
+nameLabel.BackgroundTransparency = 1
+
+local idLabel = Instance.new("TextLabel", playerPage)
+idLabel.Size = UDim2.new(1,0,0,40)
+idLabel.Position = UDim2.new(0,0,0,40)
+idLabel.Text = "UserId: "..LocalPlayer.UserId
+idLabel.TextColor3 = Color3.fromRGB(255,255,255)
+idLabel.BackgroundTransparency = 1
+
+local thumb = Instance.new("ImageLabel", playerPage)
+thumb.Size = UDim2.new(0,100,0,100)
+thumb.Position = UDim2.new(0,10,0,90)
+thumb.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+
+-- Fatima Tab
+local fatimaPage = createTab("فاطمة")
+
+local hiddenChatBtn = Instance.new("TextButton", fatimaPage)
+hiddenChatBtn.Size = UDim2.new(0,200,0,40)
+hiddenChatBtn.Position = UDim2.new(0,10,0,10)
+hiddenChatBtn.Text = "شات مخفي"
+hiddenChatBtn.BackgroundColor3 = Color3.fromRGB(100,0,0)
+hiddenChatBtn.TextColor3 = Color3.fromRGB(255,255,255)
+
+hiddenChatBtn.MouseButton1Click:Connect(function()
+    local chatEvents = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
+    if chatEvents and chatEvents:FindFirstChild("SayMessageRequest") then
+        chatEvents.SayMessageRequest:Destroy()
+    end
+end)
+
+local flingBtn = Instance.new("TextButton", fatimaPage)
+flingBtn.Size = UDim2.new(0,200,0,40)
+flingBtn.Position = UDim2.new(0,10,0,60)
+flingBtn.Text = "Fling"
+flingBtn.BackgroundColor3 = Color3.fromRGB(0,0,100)
+flingBtn.TextColor3 = Color3.fromRGB(255,255,255)
+
+flingBtn.MouseButton1Click:Connect(function()
+    local char = LocalPlayer.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local hrp = char.HumanoidRootPart
+        task.spawn(function()
+            while task.wait() do
+                if not flingBtn or not flingBtn.Parent then break end
+                hrp.Velocity = Vector3.new(9999,9999,9999)
+            end
+        end)
+    end
+end)
+
+local killBtn = Instance.new("TextButton", fatimaPage)
+killBtn.Size = UDim2.new(0,200,0,40)
+killBtn.Position = UDim2.new(0,10,0,110)
+killBtn.Text = "Kill Self"
+killBtn.BackgroundColor3 = Color3.fromRGB(100,0,100)
+killBtn.TextColor3 = Color3.fromRGB(255,255,255)
+
+killBtn.MouseButton1Click:Connect(function()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.Health = 0
+    end
+end)
+
+local jumpBox = Instance.new("TextBox", fatimaPage)
+jumpBox.Size = UDim2.new(0,150,0,40)
+jumpBox.Position = UDim2.new(0,10,0,160)
+jumpBox.PlaceholderText = "اكتب Jump Power"
+jumpBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+jumpBox.TextColor3 = Color3.fromRGB(255,255,255)
+
+local jumpBtn = Instance.new("TextButton", fatimaPage)
+jumpBtn.Size = UDim2.new(0,100,0,40)
+jumpBtn.Position = UDim2.new(0,170,0,160)
+jumpBtn.Text = "تحديد Jump"
+jumpBtn.BackgroundColor3 = Color3.fromRGB(0,100,100)
+jumpBtn.TextColor3 = Color3.fromRGB(255,255,255)
+
+jumpBtn.MouseButton1Click:Connect(function()
+    local val = tonumber(jumpBox.Text)
+    if val and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.UseJumpPower = true
+        LocalPlayer.Character.Humanoid.JumpPower = val
+    end
+end)
+
+-- Coming Soon Tab
+local soonPage = createTab("Coming Soon")
+
+local speedBox = Instance.new("TextBox", soonPage)
+speedBox.Size = UDim2.new(0,150,0,40)
+speedBox.Position = UDim2.new(0,10,0,10)
+speedBox.PlaceholderText = "اكتب السرعة"
+speedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+speedBox.TextColor3 = Color3.fromRGB(255,255,255)
+
+local speedBtn = Instance.new("TextButton", soonPage)
+speedBtn.Size = UDim2.new(0,100,0,40)
+speedBtn.Position = UDim2.new(0,10,0,60)
+speedBtn.Text = "تحديد السرعة"
+speedBtn.BackgroundColor3 = Color3.fromRGB(0,100,0)
+speedBtn.TextColor3 = Color3.fromRGB(255,255,255)
+
+speedBtn.MouseButton1Click:Connect(function()
+    local val = tonumber(speedBox.Text)
+    if val and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = val
+    end
+end)
+
+-- أول تبويب يفتح
+pages:GetChildren()[1].Visible = true
